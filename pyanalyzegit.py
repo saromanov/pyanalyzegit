@@ -121,6 +121,27 @@ class GitLogAnalyzer:
 		nums = path.split('/')
 		return nums[len(nums)-1]
 
+
+	def wordsAddRemInfo(self):
+		words = self._collectWords(self._result)
+		result = []
+		for s in self._result:
+			for f in s['Files']:
+				add = f[0]
+				rem = f[1]
+				result.append((f[2], (add-rem)/(add+rem)))
+		return result
+
+	def _collectWords(self, data):
+		words = {}
+		for d in data:
+			for w in d['CommitTitle'].split():
+				if not(w in words):
+					words[w] = 0
+				else:
+					words[w] += 1
+		return words
+
 	def showChangingFiles(self, func=None):
 		'''
 		  Plot data about append and removed lines
@@ -134,4 +155,4 @@ class GitLogAnalyzer:
 
 ex = ExtendGit()
 log = ex.log()
-log.showChangingFiles()
+log.wordsAddRemInfo()
