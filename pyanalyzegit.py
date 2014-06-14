@@ -7,6 +7,10 @@ import show
 
 #https://pypi.python.org/pypi/pbs
 
+AUTHOR = 'Author'
+DATE = 'Date'
+COMMIT = 'commit'
+
 class ExtendGit:
 	def __init__(self):
 		self.git = pbs.git
@@ -45,15 +49,15 @@ class GitLogAnalyzer:
 		for d in range(len(data)):
 			value = data[d].split('\n')
 			for j in range(len(value)):
-				if value[j].startswith('Author') and 'Author' not in commits:
-					commits['Author'] = cleardata(value[j], 'Author')
-				elif value[j].startswith('Date') and 'Date' not in commits:
-					commits['Date'] = cleardata(value[j], 'Date')
-				elif value[j].startswith('commit'):
+				if value[j].startswith(AUTHOR) and AUTHOR not in commits:
+					commits[AUTHOR] = cleardata(value[j], AUTHOR)
+				elif value[j].startswith(DATE) and DATE not in commits:
+					commits[DATE] = cleardata(value[j], DATE)
+				elif value[j].startswith(COMMIT):
 					if len(commits) > 0:
 						result.append(commits)
 					commits = {}
-					commits['Commit'] = cleardata(value[j], 'commit')
+					commits['Commit'] = cleardata(value[j], COMMIT)
 				elif len(value[j]) > 0:
 					if value[j].startswith(' '):
 						commits['CommitTitle'] = value[j].replace('  ','')
