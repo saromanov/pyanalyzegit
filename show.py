@@ -48,3 +48,41 @@ class Show:
 		plt.legend( (p1[0], p2[0]), ('Append', 'Remove') )
 
 		plt.show()
+
+
+	def showByDate(self, commits):
+		'''
+			Show information about date of commits,
+			for example count of commits by day, etc
+		'''
+		from matplotlib.finance import quotes_historical_yahoo
+		from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator
+		import datetime
+		date2 = datetime.date( 2014, 4, 12 )
+		date3 = datetime.date( 2014, 4, 11 )
+		date4 = datetime.date( 2014, 4, 13 )
+		date5 = datetime.date( 2014, 4, 14 )
+		date6 = datetime.date( 2014, 4, 15 )
+		date7 = datetime.date( 2014, 4, 16 )
+		date8 = datetime.date( 2014, 4, 17 )
+
+		years    = YearLocator()   # every year
+		months   = MonthLocator()  # every month
+		days = DayLocator()
+		yearsFmt = DateFormatter('%D')
+
+		fig, ax = plt.subplots()
+		ax.plot_date([date2, date3, date4, date5, date6, date7, date8], [4,1,2,1,3,5,2], '-')
+
+		# format the ticks
+		ax.xaxis.set_major_locator(days)
+		ax.xaxis.set_major_formatter(yearsFmt)
+		ax.xaxis.set_minor_locator(days)
+		ax.autoscale_view()
+
+		# format the coords message box
+		ax.grid(True)
+
+		fig.autofmt_xdate()
+		plt.show()
+

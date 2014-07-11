@@ -1,6 +1,5 @@
 import pbs
 import numpy
-import nltk
 import math
 
 import show
@@ -38,33 +37,43 @@ class ChangedFiles:
 #dirstat = pbs.git("log", ("--dirstat"))
 #Show source --ignore-all-space 
 #binary = pbs.git("log", ("--binary"))
+
+#This is inner class, not in API
 class GitLogAnalyzer:
 	def __init__(self, data):
+		'''
+			Parse results from pbs call
+			For example: GitLogAnalyzer(self.git("log", ("--numstat")).split('\n'))
+		'''
 		self._result = self._parseResult(data)
+		s = show.Show()
 
 	def _parseResult(self, data):
+		''' 
+			Get some ordered data from pbs
+		'''
 		result = []
 		commits = {}
 		cleardata = self._cleardata
-		for d in range(len(data)):
-			value = data[d].split('\n')
-			for j in range(len(value)):
-				if value[j].startswith(AUTHOR) and AUTHOR not in commits:
-					commits[AUTHOR] = cleardata(value[j], AUTHOR)
-				elif value[j].startswith(DATE) and DATE not in commits:
-					commits[DATE] = cleardata(value[j], DATE)
-				elif value[j].startswith(COMMIT):
+		for d in data:
+			cands = d.split('\n')
+			for cand in cands:
+				if cand.startswith(AUTHOR) and AUTHOR not in commits:
+					commits[AUTHOR] = cleardata(cand, AUTHOR)
+				elif cand.startswith(DATE) and DATE not in commits:
+					commits[DATE] = cleardata(cand, DATE)
+				elif cand.startswith(COMMIT):
 					if len(commits) > 0:
 						result.append(commits)
 					commits = {}
-					commits['Commit'] = cleardata(value[j], COMMIT)
-				elif len(value[j]) > 0:
-					if value[j].startswith(' '):
-						commits['CommitTitle'] = value[j].replace('  ','')
+					commits['Commit'] = cleardata(cand, COMMIT)
+				elif len(cand) > 0:
+					if cand.startswith(' '):
+						commits['CommitTitle'] = cand.replace('  ','')
 					else:
 						if 'Files' not in commits:
 							commits['Files'] = []
-						commits['Files'].append(self._prepareFiles(value[j]))
+						commits['Files'].append(self._prepareFiles(cand))
 		return result
 
 	def _cleardata(self, data, param):
@@ -150,9 +159,11 @@ class GitLogAnalyzer:
 		keys = data.keys()
 		a = list(map(lambda x: data[x]['a'], keys))
 		r = list(map(lambda x: data[x]['r'], keys))
-		s = show.Show()
 		s.barplot_commits(a, r, list(data.keys()))
 
-ex = ExtendGit()
-log = ex.log()
-log.wordsAddRemInfo()
+	def showCommitsByDate(self, func=None):
+		from time import mktime, time, strptime
+		import datetime
+		result = map(lambda x: 
+			datetime.datetime.fromtimestamp(mktime(strptime(x['Date'], '"%Y-%m-%d %H:%M"'))),self.getCommits())
+		#s.showByDate(self.getCommits())
