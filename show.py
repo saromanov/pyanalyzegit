@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
 
 
 
@@ -50,7 +51,7 @@ class Show:
 		plt.show()
 
 
-	def showByDate(self, commits):
+	def showByDate(self, dts, commits):
 		'''
 			Show information about date of commits,
 			for example count of commits by day, etc
@@ -58,13 +59,6 @@ class Show:
 		from matplotlib.finance import quotes_historical_yahoo
 		from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator
 		import datetime
-		date2 = datetime.date( 2014, 4, 12 )
-		date3 = datetime.date( 2014, 4, 11 )
-		date4 = datetime.date( 2014, 4, 13 )
-		date5 = datetime.date( 2014, 4, 14 )
-		date6 = datetime.date( 2014, 4, 15 )
-		date7 = datetime.date( 2014, 4, 16 )
-		date8 = datetime.date( 2014, 4, 17 )
 
 		years    = YearLocator()   # every year
 		months   = MonthLocator()  # every month
@@ -72,7 +66,9 @@ class Show:
 		yearsFmt = DateFormatter('%D')
 
 		fig, ax = plt.subplots()
-		ax.plot_date([date2, date3, date4, date5, date6, date7, date8], [4,1,2,1,3,5,2], '-')
+		result = map(lambda x: 
+			datetime.datetime.fromtimestamp(mktime(strptime(x, '%D:%M:%Y '))),dts)
+		ax.plot_date(result, commits, '-')
 
 		# format the ticks
 		ax.xaxis.set_major_locator(days)
