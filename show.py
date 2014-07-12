@@ -56,29 +56,12 @@ class Show:
 			Show information about date of commits,
 			for example count of commits by day, etc
 		'''
-		from matplotlib.finance import quotes_historical_yahoo
 		from matplotlib.dates import YearLocator, MonthLocator, DateFormatter, DayLocator
 		import datetime
 
-		years    = YearLocator()   # every year
-		months   = MonthLocator()  # every month
-		days = DayLocator()
-		yearsFmt = DateFormatter('%D')
+		result = list(map(lambda x: datetime.datetime(year=x[2], month=x[1], day=x[0]),dts))
 
-		fig, ax = plt.subplots()
-		result = map(lambda x: 
-			datetime.datetime.fromtimestamp(mktime(strptime(x, '%D:%M:%Y '))),dts)
-		ax.plot_date(result, commits, '-')
-
-		# format the ticks
-		ax.xaxis.set_major_locator(days)
-		ax.xaxis.set_major_formatter(yearsFmt)
-		ax.xaxis.set_minor_locator(days)
-		ax.autoscale_view()
-
-		# format the coords message box
-		ax.grid(True)
-
-		fig.autofmt_xdate()
+		plt.xticks(rotation=10)
+		plt.plot_date(result, commits, linestyle='dashed')
 		plt.show()
 

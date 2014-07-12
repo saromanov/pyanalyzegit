@@ -178,4 +178,7 @@ class GitLogAnalyzer:
 		result = map(lambda x: 
 			datetime.datetime.fromtimestamp(mktime(strptime(x, '%a %b %d %H:%M:%S %Y '))),cd)
 		d,c = countCommitsByDate(result)
+
 		self.s.showByDate(d,c)
+
+
