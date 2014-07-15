@@ -60,8 +60,10 @@ class Show:
 		import datetime
 
 		result = list(map(lambda x: datetime.datetime(year=x[2], month=x[1], day=x[0]),dts))
-
-		plt.xticks(rotation=10)
-		plt.plot_date(result, commits, linestyle='dashed')
+		value = list(zip(result, commits))
+		sorteddates = sorted(zip(result, commits), key=lambda x: x[0])
+		plt.xticks()
+		plt.subplots_adjust(bottom=0.2)
+		plt.plot_date(*zip(*sorteddates), linestyle='dashed', linewidth=2.0)
+		plt.gcf().autofmt_xdate()
 		plt.show()
-
