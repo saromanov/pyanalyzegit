@@ -8,7 +8,7 @@ import numpy
 import math
 
 import show
-from utils import clearDates, countCommitsByDate
+from utils import clearDates, countCommitsByDate, Snippets
 
 #https://pypi.python.org/pypi/pbs
 
@@ -35,9 +35,10 @@ class ExtendGit:
 
 
 class ChangedFiles:
-	def __init__(self, count, value):
+	def __init__(self, count, app, rems):
 		self.count = count
-		self.value = value
+		self.app = app
+		self.rems = rems
 
 #http://git-scm.com/docs/git-log
 #dirstat = pbs.git("log", ("--dirstat"))
@@ -99,22 +100,33 @@ class GitLogAnalyzer:
 		'''
 		return list(filter(func, self.result))
 
+	def _parseIntData(self, add, rem):
+		try:
+			add = int(add)
+			rem = int(rem)
+			return add, rem
+		except Exception:
+			return 0,0
 
-	def mostchangingfiles(self, limit=1):
+	def mostChangingFiles(self, limit=1):
 		'''
-			Get most changing files in project
+			Get most modified files in project
 		'''
 		files = {}
 		for commit in self._result:
 			f = commit['Files']
-			add = int(f[0])
-			rem = int(f[1])
-			if f[2] not in files:
-				files[f[2]] = ChangedFiles(1, abs(add - rem))
-			else:
-				cf = files[f[2]]
-				files[f[2]] = ChangedFiles(cf.count+1, cf.value + abs(add-rem))
-		return sorted(files.items(), key=_[1].count, reverse=True)
+			for subfile in f:
+				add, rem = self._parseIntData(subfile[0], subfile[1])
+				cfile = subfile[2]
+				if cfile not in files:
+					files[cfile] = ChangedFiles(1, add, rem)
+				else:
+					cf = files[cfile]
+					files[cfile] = ChangedFiles(cf.count+1, cf.app+add, cf.rems+rem)
+		filessorted = sorted(files.items(), key=_[1].count, reverse=True)
+		result = map(lambda data: (data[0], {'count':data[1].count,\
+			'append':data[1].app, 'remove': data[1].rems}), filessorted)
+		print(list(result))
 
 
 	def getCommits(self):
@@ -180,5 +192,3 @@ class GitLogAnalyzer:
 			datetime.datetime.fromtimestamp(mktime(strptime(x, '%a %b %d %H:%M:%S %Y '))),cd)
 		d,c = countCommitsByDate(result)
 		self.s.showByDate(d,c)
-
-
