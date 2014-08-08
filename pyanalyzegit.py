@@ -2,6 +2,7 @@ import pbs
 
 #https://github.com/kachayev/fn.py
 from fn import _, F, underscore
+from abc import ABCMeta, abstractmethod
 import fn
 
 import numpy
@@ -9,6 +10,8 @@ import math
 
 import show
 from utils import clearDates, countCommitsByDate, Snippets
+
+#Celery?
 
 #https://pypi.python.org/pypi/pbs
 
@@ -30,9 +33,45 @@ class ExtendGit:
 	#Use infromation from basic git log command
 	def log(self, *args, **kwargs):
 		#Append git log patch
-		data = self.git("log", ("--numstat")).split('\n')
-		return GitLogAnalyzer(data)
+		opt = kwargs.get('opt', '--numstat')
+		af = AnalyzeFactory()
+		if opt.find('--') == -1:
+			opt = '--' + opt
+		if opt == '--numstat':
+			af.set('gla', GitLogAnalyzer)
+		if opt == '--binary':
+			af.set('bin', PySourceAnalyzer)
+		data = self.git("log", (opt)).split('\n')
+		return af.get(data)
+		#return GitLogAnalyzer(data)
 
+class AbstractAnalyze(metaclass=ABCMeta):
+
+	@abstractmethod
+	def analyze(self, func):
+		'''
+			User analyze method with data
+		'''
+		pass
+
+
+class AnalyzeFactory:
+	def __init__(self, *args, **kwargs):
+		self._cleardata = {}
+
+	def set(self, name, classdata):
+		self._cleardata[name] = classdata
+
+	def get(self, name, data):
+		if name in self._cleardata:
+			return self._cleardata[name](data)
+
+	def get(self, data):
+		'''
+			Get all from store
+		'''
+		for func in self._cleardata.keys():
+			return self._cleardata[func](data)
 
 class ChangedFiles:
 	def __init__(self, count, app, rems):
@@ -46,7 +85,7 @@ class ChangedFiles:
 #binary = pbs.git("log", ("--binary"))
 
 #This is inner class, not in API
-class GitLogAnalyzer:
+class GitLogAnalyzer(AbstractAnalyze):
 	def __init__(self, data):
 		'''
 			Parse results from pbs call
@@ -126,7 +165,7 @@ class GitLogAnalyzer:
 		filessorted = sorted(files.items(), key=_[1].count, reverse=True)
 		result = map(lambda data: (data[0], {'count':data[1].count,\
 			'append':data[1].app, 'remove': data[1].rems}), filessorted)
-		print(list(result))
+		return list(result)
 
 
 	def getCommits(self):
@@ -162,6 +201,11 @@ class GitLogAnalyzer:
 				result.append((f[2], (add-rem)/(add+rem)))
 		return result
 
+	def getFunctionNames(self, lang):
+		if lang != 'python':
+			raise Exception("This language is not supported")
+		return PySourceAnalyzer()
+
 	def _collectWords(self, data):
 		words = {}
 		for d in data:
@@ -183,6 +227,9 @@ class GitLogAnalyzer:
 		self.s.barplot_commits(a, r, list(data.keys()))
 
 	def showCommitsByDate(self, func=None):
+		'''
+			Plot data about commits
+		'''
 		from time import mktime, time, strptime
 		import datetime
 		dates = list(map(lambda x: x['Date'], self.getCommits()))
@@ -192,3 +239,70 @@ class GitLogAnalyzer:
 			datetime.datetime.fromtimestamp(mktime(strptime(x, '%a %b %d %H:%M:%S %Y '))),cd)
 		d,c = countCommitsByDate(result)
 		self.s.showByDate(d,c)
+
+
+class PySourceAnalyzer:
+	'''
+		Analyze append and removed from source
+	'''
+	def __init__(self, data):
+		self._result = self._parseResult(data)
+
+	def _parseResult(self, data):
+		return [value.split() for value in data]
+
+	def getFunctions(self, objfunc=None):
+		'''
+			objfunc - target function
+		'''
+		FUNCSTART = 'def'
+		PLUS = '+'
+		REM = '-'
+		if objfunc == None:
+			''' Get default function '''
+			def getFunc(line):
+				#func = _, line[2].split('(')[0]
+				if len(line) > 1:
+					if line[0] == PLUS:
+						if line[1] == FUNCSTART:
+							return [PLUS, line[2].split('(')[0]]
+					if line[1] == REM:
+						if line[1] == FUNCSTART:
+							return [REM, line[2].split('(')[0]]
+			objfunc = getFunc
+
+		for line in self._result:
+			result = objfunc(line)
+			if result != None:
+				yield result
+
+	def getCountLinesFuncs(self):
+		#Only functions with return 
+		def getFunc(line):
+			if 'def' in line:
+				return 0
+			if 'return' in line:
+				return 1
+		objfunc = getFunc
+		count = 0
+		for line in self._result:
+			print(line)
+			result = objfunc(line)
+			if result == 0:
+				count = 0
+			if result == 1:
+				yield count
+			else:
+				count += 1
+
+	def analyze(self, func):
+		return list(filter(func, self._result))
+
+
+class JavaScriptSourceAnalyzer:
+	''' Working with source in JS '''
+	def __init__(self, data):
+		self._result = self._parseResult(data)
+
+	def _parseResult(self, data):
+		pass
