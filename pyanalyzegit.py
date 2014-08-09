@@ -1,11 +1,11 @@
-import pbs
+from collections import Counter
 
+import pbs
 #https://github.com/kachayev/fn.py
 from fn import _, F, underscore
 from abc import ABCMeta, abstractmethod
 from sourceanalysis.pysourceanalyzer import PySourceAnalyzer
 import fn
-
 import numpy
 import math
 
@@ -45,6 +45,14 @@ class ExtendGit:
 		data = self.git("log", (opt)).split('\n')
 		return af.get(data)
 		#return GitLogAnalyzer(data)
+
+class GitLog:
+	def __init__(self, *args,**kwargs):
+		self.git = pbs.git
+
+	def getAuthors(self):
+		data = self.git("log" ,"--pretty=format:'%an'").split('\n')
+		return Counter(data).most_common()
 
 class AbstractAnalyze(metaclass=ABCMeta):
 
@@ -206,6 +214,13 @@ class GitLogAnalyzer(AbstractAnalyze):
 		if lang != 'python':
 			raise Exception("This language is not supported")
 		return PySourceAnalyzer()
+
+	def getAuthors(self):
+		'''
+			Return dict with authors and number of commits
+		'''
+		print(self.git("log --pretty=format:'%an'"))
+		return {}
 
 	def _collectWords(self, data):
 		words = {}
