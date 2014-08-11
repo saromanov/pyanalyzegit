@@ -5,6 +5,7 @@ import pbs
 from fn import _, F, underscore
 from abc import ABCMeta, abstractmethod
 from sourceanalysis.pysourceanalyzer import PySourceAnalyzer
+from sourceanalysis.javascriptsourceanalyzer import JavaScriptSourceAnalyzer
 import fn
 import numpy
 import math
@@ -50,9 +51,18 @@ class GitLog:
 	def __init__(self, *args,**kwargs):
 		self.git = pbs.git
 
+	def _getGitData(self, keys):
+		return self.git("log" ,"--pretty=format:'%{0}'".format(keys)).split('\n')
+
 	def getAuthors(self):
-		data = self.git("log" ,"--pretty=format:'%an'").split('\n')
+		data = self._getGitData('an')
 		return Counter(data).most_common()
+
+	def getComments(self):
+		return self._getGitData('s')
+
+	def countWords(self):
+		print(Counter(''.join(self.getComments()).split()).most_common())
 
 class AbstractAnalyze(metaclass=ABCMeta):
 
@@ -201,7 +211,10 @@ class GitLogAnalyzer(AbstractAnalyze):
 
 
 	def wordsAddRemInfo(self):
-		words = self._collectWords(self._result)
+		'''
+			Most change in files
+		'''
+		print(words)
 		result = []
 		for s in self._result:
 			for f in s['Files']:
@@ -210,10 +223,14 @@ class GitLogAnalyzer(AbstractAnalyze):
 				result.append((f[2], (add-rem)/(add+rem)))
 		return result
 
+
+
 	def getFunctionNames(self, lang):
-		if lang != 'python':
-			raise Exception("This language is not supported")
-		return PySourceAnalyzer()
+		if lang == 'python':
+			return PySourceAnalyzer(self._result)
+		if lang == 'js':
+			return JavaScriptSourceAnalyzer(self._result)
+		raise Exception("This language is not supported")
 
 	def getAuthors(self):
 		'''
@@ -221,16 +238,6 @@ class GitLogAnalyzer(AbstractAnalyze):
 		'''
 		print(self.git("log --pretty=format:'%an'"))
 		return {}
-
-	def _collectWords(self, data):
-		words = {}
-		for d in data:
-			for w in d['CommitTitle'].split():
-				if not(w in words):
-					words[w] = 0
-				else:
-					words[w] += 1
-		return words
 
 	def showChangingFiles(self, func=None):
 		'''
@@ -255,3 +262,6 @@ class GitLogAnalyzer(AbstractAnalyze):
 			datetime.datetime.fromtimestamp(mktime(strptime(x, '%a %b %d %H:%M:%S %Y '))),cd)
 		d,c = countCommitsByDate(result)
 		self.s.showByDate(d,c)
+
+	def commentsFromCommit(self):
+		pass
