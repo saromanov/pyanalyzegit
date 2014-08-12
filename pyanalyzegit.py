@@ -47,6 +47,9 @@ class ExtendGit:
 		return af.get(data)
 		#return GitLogAnalyzer(data)
 
+	def getArchiveFromRepo(self, form, path):
+		self.git("archive","master","--format={0}".format(form), "--output={0}".format(path))
+
 class GitLog:
 	def __init__(self, *args,**kwargs):
 		self.git = pbs.git
@@ -62,7 +65,60 @@ class GitLog:
 		return self._getGitData('s')
 
 	def countWords(self):
-		print(Counter(''.join(self.getComments()).split()).most_common())
+		return Counter(''.join(self.getComments()).split()).most_common()
+
+	def showChangingFiles(self):
+		pass
+
+class GitLogParsing:
+	'''
+		Parsing output of git log
+		Maybe, re-implement it with some keys
+	'''
+	def __init__(self, data):
+		self._data = data
+
+	def _parseResult(self, data):
+		''' 
+			Get some ordered data from pbs
+		'''
+		result = []
+		commits = {}
+		cleardata = self._cleardata
+		for d in data:
+			cands = d.split('\n')
+			for cand in cands:
+				if cand.startswith(AUTHOR) and AUTHOR not in commits:
+					commits[AUTHOR] = cleardata(cand, AUTHOR)
+				elif cand.startswith(DATE) and DATE not in commits:
+					commits[DATE] = cleardata(cand, DATE)
+				elif cand.startswith(COMMIT):
+					if len(commits) > 0:
+						result.append(commits)
+					commits = {}
+					commits['Commit'] = cleardata(cand, COMMIT)
+				elif len(cand) > 0:
+					if cand.startswith(' '):
+						commits['CommitTitle'] = cand.replace('  ','')
+					else:
+						if 'Files' not in commits:
+							commits['Files'] = []
+						commits['Files'].append(self._prepareFiles(cand))
+		return result
+
+	def _cleardata(self, data, param):
+		return data.split(param)[1:][0]
+
+	def _prepareFiles(self, value):
+		'''
+		  Convert append and removed lines in int type
+		  And output with filename
+		'''
+		#return list(map(_ if not _.isdigit() else int(_), value.split()))
+		return list(map(lambda x: x if not x.isdigit() else int(x), value.split()))
+
+	def result(self):
+		return self._parseResult(self._data)
 
 class AbstractAnalyze(metaclass=ABCMeta):
 
@@ -110,47 +166,9 @@ class GitLogAnalyzer(AbstractAnalyze):
 			Parse results from pbs call
 			For example: GitLogAnalyzer(self.git("log", ("--numstat")).split('\n'))
 		'''
-		self._result = self._parseResult(data)
+		self.glog = GitLog()
+		self._result = GitLogParsing(data).result()
 		self.s = show.Show()
-
-	def _parseResult(self, data):
-		''' 
-			Get some ordered data from pbs
-		'''
-		result = []
-		commits = {}
-		cleardata = self._cleardata
-		for d in data:
-			cands = d.split('\n')
-			for cand in cands:
-				if cand.startswith(AUTHOR) and AUTHOR not in commits:
-					commits[AUTHOR] = cleardata(cand, AUTHOR)
-				elif cand.startswith(DATE) and DATE not in commits:
-					commits[DATE] = cleardata(cand, DATE)
-				elif cand.startswith(COMMIT):
-					if len(commits) > 0:
-						result.append(commits)
-					commits = {}
-					commits['Commit'] = cleardata(cand, COMMIT)
-				elif len(cand) > 0:
-					if cand.startswith(' '):
-						commits['CommitTitle'] = cand.replace('  ','')
-					else:
-						if 'Files' not in commits:
-							commits['Files'] = []
-						commits['Files'].append(self._prepareFiles(cand))
-		return result
-
-	def _cleardata(self, data, param):
-		return data.split(param)[1:][0]
-
-	def _prepareFiles(self, value):
-		'''
-		  Convert append and removed lines in int type
-		  And output with filename
-		'''
-		#return list(map(_ if not _.isdigit() else int(_), value.split()))
-		return list(map(lambda x: x if not x.isdigit() else int(x), value.split()))
 
 	def analyze(self, func):
 		'''
@@ -214,7 +232,6 @@ class GitLogAnalyzer(AbstractAnalyze):
 		'''
 			Most change in files
 		'''
-		print(words)
 		result = []
 		for s in self._result:
 			for f in s['Files']:
@@ -234,10 +251,10 @@ class GitLogAnalyzer(AbstractAnalyze):
 
 	def getAuthors(self):
 		'''
-			Return dict with authors and number of commits
+			Return tuple (author, number of commits)
 		'''
-		print(self.git("log --pretty=format:'%an'"))
-		return {}
+		return self.glog.getAuthors()
+
 
 	def showChangingFiles(self, func=None):
 		'''
@@ -264,4 +281,4 @@ class GitLogAnalyzer(AbstractAnalyze):
 		self.s.showByDate(d,c)
 
 	def commentsFromCommit(self):
-		pass
+		return self.glog.getComments()
