@@ -9,6 +9,7 @@ from sourceanalysis.javascriptsourceanalyzer import JavaScriptSourceAnalyzer
 import fn
 import numpy
 import math
+import argparse
 
 import show
 from utils import clearDates, countCommitsByDate, Snippets
@@ -282,3 +283,13 @@ class GitLogAnalyzer(AbstractAnalyze):
 
 	def commentsFromCommit(self):
 		return self.glog.getComments()
+
+
+def parse():
+	parser = argparse.ArgumentParser(description="Parsing arguments")
+	parser.add_argument('-r', action='store_const')
+	args = parser.parse_args()
+
+
+if __name__ == '__main__':
+	parse()
