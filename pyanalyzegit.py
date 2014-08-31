@@ -238,7 +238,9 @@ class GitLogAnalyzer(AbstractAnalyze):
 			for f in s['Files']:
 				add = f[0]
 				rem = f[1]
-				result.append((f[2], (add-rem)/(add+rem)))
+				zdata = (add + rem)
+				if zdata != 0:
+					result.append((f[2], (add-rem)/(add+rem)))
 		return result
 
 
@@ -256,6 +258,11 @@ class GitLogAnalyzer(AbstractAnalyze):
 		'''
 		return self.glog.getAuthors()
 
+	def checkBug(self):
+		'''
+			Get author of bug
+		'''
+		return None
 
 	def showChangingFiles(self, func=None):
 		'''
@@ -285,11 +292,42 @@ class GitLogAnalyzer(AbstractAnalyze):
 		return self.glog.getComments()
 
 
+def getLogData(git):
+	numstat = git.log(opt='--numstat').wordsAddRemInfo()
+	return numstat
+
+def getZipData(git):
+	git.getArchiveFromRepo('zip', 'test.zip')
+	print("Complete. Archive from repo was zipped")
+
+def getAuthorsData(git):
+	return git.log().getAuthors()
+
 def parse():
 	parser = argparse.ArgumentParser(description="Parsing arguments")
-	parser.add_argument('-r', action='store_const')
+	parser.add_argument('--log', nargs='?', help='foo help')
+	parser.add_argument('--zip', nargs='?', help='foo help')
+	parser.add_argument('--authors', nargs='?', help='foo help')
+	parser
+	parser.print_help()
 	args = parser.parse_args()
+	git = ExtendGit()
+	if args.log != None:
+		from consoleout import tableOutput
+		tableOutput(getLogData(git))
+	if args.zip != None:
+		getZipData(git)
+	if args.authors != None:
+		from consoleout import tableOutput
+		tableOutput(getAuthorsData(git))
+
 
 
 if __name__ == '__main__':
 	parse()
+	#git = ExtendGit()
+	#binary = git.log(opt='binary')
+	#print(list(binary.getFunctions()))
+	#print(list(, ...)
+	'''for comm in  git.log().getCommits():
+		print(comm['CommitTitle'])'''

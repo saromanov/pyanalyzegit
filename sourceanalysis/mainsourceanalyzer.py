@@ -8,6 +8,7 @@ class MainSourceAnalyzer:
 	def getFunctions(self, funcstart, objfunc=None):
 		'''
 			objfunc - target function
+			Probably need to remove
 		'''
 		FUNCSTART = funcstart
 		PLUS = '+'
@@ -29,6 +30,10 @@ class MainSourceAnalyzer:
 			result = objfunc(line)
 			if result != None:
 				yield result
+
+	def getFunctionsWGrep(self, path, keyword):
+		import pbs
+		return pbs.git('grep', 'def')
 
 	def getCountLinesFuncs(self, startfunc, endfunc):
 		#Only functions with return 
