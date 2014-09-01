@@ -12,3 +12,9 @@ def tableOutput(data):
 		print('  '.join(map(lambda x: str(x), value)))
 	print('End of elements', ...)
 
+
+def infoOutput(data):
+	'''
+		Outout for some statistical information
+	'''
+	pass

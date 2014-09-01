@@ -16,7 +16,6 @@ class MainSourceAnalyzer:
 		if objfunc == None:
 			''' Get default function '''
 			def getFunc(line):
-				#func = _, line[2].split('(')[0]
 				if len(line) > 1:
 					if line[0] == PLUS:
 						if line[1] == FUNCSTART:
@@ -31,9 +30,9 @@ class MainSourceAnalyzer:
 			if result != None:
 				yield result
 
-	def getFunctionsWGrep(self, path, keyword):
+	def grepData(self, keyword):
 		import pbs
-		return pbs.git('grep', 'def')
+		return pbs.git('grep', keyword)
 
 	def getCountLinesFuncs(self, startfunc, endfunc):
 		#Only functions with return 

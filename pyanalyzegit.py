@@ -43,7 +43,11 @@ class ExtendGit:
 		if opt == '--numstat':
 			af.set('gla', GitLogAnalyzer)
 		if opt == '--binary':
-			af.set('bin', PySourceAnalyzer)
+			lang = kwargs.get('lang')
+			if lang =='py':
+				af.set('bin', PySourceAnalyzer)
+			if lang == 'js':
+				af.set('bin', JavaScriptSourceAnalyzer)
 		data = self.git("log", (opt)).split('\n')
 		return af.get(data)
 		#return GitLogAnalyzer(data)
@@ -305,9 +309,10 @@ def getAuthorsData(git):
 
 def parse():
 	parser = argparse.ArgumentParser(description="Parsing arguments")
-	parser.add_argument('--log', nargs='?', help='foo help')
-	parser.add_argument('--zip', nargs='?', help='foo help')
-	parser.add_argument('--authors', nargs='?', help='foo help')
+	parser.add_argument('--log', nargs='?', help='Show log data')
+	parser.add_argument('--zip', nargs='?', help='zipp current repo')
+	parser.add_argument('--authors', nargs='?', help='Show all authors in this repo')
+	parser.add_argument('--show-commits', nargs='?', help='Plot commits by date')
 	parser
 	parser.print_help()
 	args = parser.parse_args()
@@ -321,13 +326,11 @@ def parse():
 		from consoleout import tableOutput
 		tableOutput(getAuthorsData(git))
 
-
-
 if __name__ == '__main__':
 	parse()
-	#git = ExtendGit()
-	#binary = git.log(opt='binary')
-	#print(list(binary.getFunctions()))
+	'''git = ExtendGit()
+	binary = git.log(opt='binary', lang='py')
+	print(binary.getFunctionsStat())'''
 	#print(list(, ...)
 	'''for comm in  git.log().getCommits():
 		print(comm['CommitTitle'])'''
