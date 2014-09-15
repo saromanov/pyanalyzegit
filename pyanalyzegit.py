@@ -33,6 +33,13 @@ class ExtendGit:
 	def commit(self, value):
 		self.git("commit" + value)
 
+	def githubClone(self, repo):
+		'''
+			Clone from github with just a repo name.
+			Looks like a alias
+		'''
+		self.git("clone", "https://github.com/{0}".format(repo))
+
 	#Use infromation from basic git log command
 	def log(self, *args, **kwargs):
 		#Append git log patch
@@ -50,7 +57,6 @@ class ExtendGit:
 				af.set('bin', JavaScriptSourceAnalyzer)
 		data = self.git("log", (opt)).split('\n')
 		return af.get(data)
-		#return GitLogAnalyzer(data)
 
 	def getArchiveFromRepo(self, form, path):
 		self.git("archive","master","--format={0}".format(form), "--output={0}".format(path))
@@ -307,13 +313,21 @@ def getZipData(git):
 def getAuthorsData(git):
 	return git.log().getAuthors()
 
+def plotCommitsByDate(git):
+	git.log().showCommitsByDate()
+
+def cloneFromGithub(git, repo):
+	git.githubClone(repo)
+
 def parse():
 	parser = argparse.ArgumentParser(description="Parsing arguments")
 	parser.add_argument('--log', nargs='?', help='Show log data')
 	parser.add_argument('--zip', nargs='?', help='zipp current repo')
 	parser.add_argument('--authors', nargs='?', help='Show all authors in this repo')
 	parser.add_argument('--show-commits', nargs='?', help='Plot commits by date')
-	parser
+	parser.add_argument('--plot-files', nargs='?', help='Plot changing files')
+	parser.add_argument('--gclone', nargs='?', help='Clone repo from github')
+	parser.add_argument('--gclonei', nargs='?', help='Clone repo from git and install')
 	parser.print_help()
 	args = parser.parse_args()
 	git = ExtendGit()
@@ -325,6 +339,10 @@ def parse():
 	if args.authors != None:
 		from consoleout import tableOutput
 		tableOutput(getAuthorsData(git))
+	if args.show_commits != None:
+		plotCommitsByDate(git)
+	if args.gclone != None:
+		cloneFromGithub(git, args.gclone)
 
 if __name__ == '__main__':
 	parse()
