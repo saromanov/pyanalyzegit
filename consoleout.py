@@ -4,8 +4,10 @@
 
 import builtins
 
+
 def tableOutput(data):
-	if len(data) == 0:
+	if data == None or len(data) == 0:
+		#TODO: Add this exception to base
 		raise "Data contain zero elements"
 	print('ELEMENTS: ')
 	for value in data:

@@ -37,3 +37,9 @@ class PySourceAnalyzer:
 
 	def analyze(self, func):
 		return self._dataobj.analyze(func)
+
+	def mostOftenFunctions(self):
+		'''
+			Return list of most often function calls in code
+		'''
+		return self._dataobj.mostOftenFuncs('def')

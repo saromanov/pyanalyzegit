@@ -55,3 +55,21 @@ class MainSourceAnalyzer:
 
 	def analyze(self, func):
 		return list(filter(func, self._result))
+
+	def _mostOftenHelpful(self, func, fstart):
+		try:
+			data = self.grepData(func).split('\n')
+			return len(list(filter (lambda x: self._mostOftenfilterNames(fstart, x), \
+				self.grepData(func + '(').split('\n'))))
+		except Exception as e:
+			return 0
+
+	def _mostOftenfilterNames(self, funcident, data):
+		return data.index(funcident + data) != -1
+
+	def mostOftenFuncs(self, fstart):
+		#result = self._mostOftenHelpful('getAuthors', fstart)
+		return list(reversed(sorted(\
+			list(map(lambda x: (x, self._mostOftenHelpful(x)), 
+				set(map(lambda x:x[1], self.getFunctions('def'))))),\
+			key=lambda x:x[1])))
