@@ -326,6 +326,7 @@ def parse():
 	parser.add_argument('--authors', nargs='?', help='Show all authors in this repo')
 	parser.add_argument('--show-commits', nargs='?', help='Plot commits by date')
 	parser.add_argument('--plot-files', nargs='?', help='Plot changing files')
+	parser.add_argument('--often-funcs', nargs='?', help='Get list of most often calls functions in code')
 	parser.add_argument('--gclone', nargs='?', help='Clone repo from github')
 	parser.add_argument('--gclonei', nargs='?', help='Clone repo from git and install')
 	parser.print_help()
@@ -343,12 +344,17 @@ def parse():
 		plotCommitsByDate(git)
 	if args.gclone != None:
 		cloneFromGithub(git, args.gclone)
+	if args.often_funcs != None:
+		#Now only for python
+		from consoleout import tableOutput
+		binary = git.log(opt='binary', lang='py')
+		tableOutput(binary.mostOftenFunctions())
 
 if __name__ == '__main__':
 	parse()
-	'''git = ExtendGit()
-	binary = git.log(opt='binary', lang='py')
-	print(binary.getFunctionsStat())'''
+	#git = ExtendGit()
+	#binary = git.log(opt='binary', lang='py')
+	#print(binary.mostOftenFunctions())
 	#print(list(, ...)
 	'''for comm in  git.log().getCommits():
 		print(comm['CommitTitle'])'''
