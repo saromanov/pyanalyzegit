@@ -10,6 +10,7 @@ import fn
 import numpy
 import math
 import argparse
+import git
 
 import show
 from utils import clearDates, countCommitsByDate, Snippets
@@ -21,6 +22,15 @@ from utils import clearDates, countCommitsByDate, Snippets
 AUTHOR = 'Author'
 DATE = 'Date'
 COMMIT = 'commit'
+
+
+class GitAnalyzer:
+    def __init__(self):
+        self.repos = []
+
+    def getCommitsInfo(self, repopath):
+        repo = git.Repo(repopath)
+        return list(repo.iter_commits())
 
 
 class ExtendGit:
