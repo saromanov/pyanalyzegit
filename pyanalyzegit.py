@@ -37,6 +37,7 @@ class ExtendGit:
 
     def __init__(self):
         self.git = pbs.git
+        self.gitdata = GitAnalyzer()
 
     def branch(self):
         ''' get a current branch'''
@@ -51,6 +52,9 @@ class ExtendGit:
                 Looks like a alias
         '''
         self.git("clone", "https://github.com/{0}".format(repo))
+
+    def commitsInfo(self, repopath):
+        commits = self.gitdata.getCommitsInfo(repopath)
 
     # Use infromation from basic git log command
     def log(self, *args, **kwargs):
