@@ -54,6 +54,7 @@ class ExtendGit:
     def showCommitsInfo(self, repopath):
         commits = self.commitsInfo(repopath)
         for commit in commits:
+            print(dir(commit))
             print(commit.committed_date, commit.committer, commit.message)
 
     # Use infromation from basic git log command
