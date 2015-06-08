@@ -1,12 +1,7 @@
 from collections import Counter
-
-import pbs
-# https://github.com/kachayev/fn.py
-from fn import _, F, underscore
 from abc import ABCMeta, abstractmethod
 from sourceanalysis.pysourceanalyzer import PySourceAnalyzer
 from sourceanalysis.javascriptsourceanalyzer import JavaScriptSourceAnalyzer
-import fn
 import numpy
 import math
 import argparse
@@ -36,7 +31,7 @@ class GitAnalyzer:
 class ExtendGit:
 
     def __init__(self):
-        self.git = pbs.git
+        #self.git = pbs.git
         self.gitdata = GitAnalyzer()
 
     def branch(self):
@@ -54,7 +49,12 @@ class ExtendGit:
         self.git("clone", "https://github.com/{0}".format(repo))
 
     def commitsInfo(self, repopath):
-        commits = self.gitdata.getCommitsInfo(repopath)
+        return self.gitdata.getCommitsInfo(repopath)
+
+    def showCommitsInfo(self, repopath):
+        commits = self.commitsInfo(repopath)
+        for commit in commits:
+            print(commit.committed_date, commit.committer, commit.message)
 
     # Use infromation from basic git log command
     def log(self, *args, **kwargs):
