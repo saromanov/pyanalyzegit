@@ -64,22 +64,6 @@ class GitLogAnalyzer(AbstractAnalyze):
                                              'append': data[1].app, 'remove': data[1].rems}), filessorted)
         return list(result)
 
-    def _collectData(self, func=None):
-        files = {}
-        for data in self._result:
-            # TODO: Need to optimize
-            for f in data['Files']:
-
-                if f[0] < 1000:
-                    name = self._getFileName(f[2])
-                    if name not in files:
-                        files[name] = {'a': f[0], 'r': f[1]}
-                    else:
-                        value = files[name]
-                        files[name] = {
-                            'a': value['a'] + f[0], 'r': value['r'] + f[1]}
-        return files
-
     def _getFileName(self, path):
         nums = path.split('/')
         return nums[len(nums) - 1]
