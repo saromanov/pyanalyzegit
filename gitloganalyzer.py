@@ -52,6 +52,7 @@ class GitLogAnalyzer(AbstractAnalyze):
     def mostChangedFiles(self, limit=1):
         '''
             Get most modified files in project
+            return dict of number of file: {count: Number of changes, insertions: Number of insertions, deletions: Number of deletions}
         '''
         files = {}
         for commit in self.commits:
@@ -70,8 +71,8 @@ class GitLogAnalyzer(AbstractAnalyze):
         filessorted = sorted(
             files.items(), key=lambda x: x[1].count, reverse=True)
         result = map(lambda data: (data[0], {'count': data[1].count,
-                                             'append': data[1].app, 'remove': data[1].rems}), filessorted)
-        return list(result)
+                                             'insertions': data[1].app, 'deletions': data[1].rems}), filessorted)
+        return dict(result)
 
     def _getFileName(self, path):
         nums = path.split('/')
