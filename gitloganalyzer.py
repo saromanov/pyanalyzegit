@@ -21,6 +21,15 @@ class ChangedFiles:
         self.lines = lines
 
 
+class EventData:
+    def __init__(self, commit):
+        self.message = commit.summary
+        self.date = commit.committed_date
+        self.insertions = commit.stats.total['insertions']
+        self.deletions = commit.stats.total['deletions']
+        self.total = self.insertions + self.deletions
+
+
 class GitLogAnalyzer(AbstractAnalyze):
 
     def __init__(self, data):
@@ -93,6 +102,13 @@ class GitLogAnalyzer(AbstractAnalyze):
         ''' Return {git.Actor: number of commits}
         '''
         return dict(Counter([commit.author for commit in self.commits]))
+
+
+    def getBigEvents(self, count=5):
+        ''' This method returns list of commits with large numbers of insertions or deletions
+            count - number of big events
+        '''
+        return list(reversed(sorted([EventData(commit) for commit in self.commits], key=lambda x: x.total)))
 
     def checkBug(self):
         '''
