@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from collections import Counter
 
 
 class AbstractAnalyze(metaclass=ABCMeta):
@@ -104,11 +105,10 @@ class GitLogAnalyzer(AbstractAnalyze):
             return JavaScriptSourceAnalyzer(self._result)
         raise Exception("This language is not supported")
 
-    def getAuthors(self):
+    def getAuthorsStat(self):
+        ''' Return {git.Actor: number of commits}
         '''
-            Return tuple (author, number of commits)
-        '''
-        return self.glog.getAuthors()
+        return dict(Counter([commit.author for commit in self.commits]))
 
     def checkBug(self):
         '''
