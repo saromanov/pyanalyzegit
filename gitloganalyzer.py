@@ -111,6 +111,11 @@ class GitLogAnalyzer(AbstractAnalyze):
         '''
         return list(reversed(sorted([EventData(commit) for commit in self.commits], key=lambda x: x.total)))
 
+    def getCommitsByWord(self, word):
+        ''' This method returns list of commits where contains target word'''
+        return [commit for commit in self.commits if commit.message.find(word) != -1]
+
+
     def checkBug(self):
         '''
             Get author of bug
