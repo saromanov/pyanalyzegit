@@ -120,12 +120,6 @@ class GitLogAnalyzer(AbstractAnalyze):
         return [(commit.message, commit.stats.total['insertions'], commit.stats.total['deletions']) for commit in self.getCommitsByWord(word)]
 
 
-    def checkBug(self):
-        '''
-            Get author of bug
-        '''
-        return None
-
     def showChangingFiles(self, func=None):
         '''
           Plot data about append and removed lines
