@@ -115,6 +115,10 @@ class GitLogAnalyzer(AbstractAnalyze):
         ''' This method returns list of commits where contains target word'''
         return [commit for commit in self.commits if commit.message.find(word) != -1]
 
+    def statCommitsByWord(self, word):
+        ''' This method returns list of tuples(commit message, total number of insertions, total number of deletions)'''
+        return [(commit.message, commit.stats.total['insertions'], commit.stats.total['deletions']) for commit in self.getCommitsByWord(word)]
+
 
     def checkBug(self):
         '''
