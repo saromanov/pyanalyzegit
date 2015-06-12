@@ -119,30 +119,18 @@ class GitLogAnalyzer(AbstractAnalyze):
         ''' This method returns list of tuples(commit message, total number of insertions, total number of deletions)'''
         return [(commit.message, commit.stats.total['insertions'], commit.stats.total['deletions']) for commit in self.getCommitsByWord(word)]
 
+    def _filterTime(self, commitlist, committime):
+        return list(filter(lambda x: x[1].tm_year == committime.year and x[1].tm_mon == committime.month and x[1].tm_mday == committime.day, commitlist))
 
-    def showChangingFiles(self, func=None):
+    def getCommitsByDate(self, committime):
         '''
-          Plot data about append and removed lines
+            Get all commits by date (datetime object)
         '''
-        data = self._collectData(func)
-        keys = data.keys()
-        a = list(map(data[_]['a'], keys))
-        r = list(map(data[_]['r'], keys))
-        self.s.barplot_commits(a, r, list(data.keys()))
-
-    def showCommitsByDate(self, func=None):
-        '''
-            Plot data about commits
-        '''
-        from time import mktime, time, strptime
         import datetime
-        dates = list(map(lambda x: x['Date'], self.getCommits()))
-        cd = clearDates(dates)
-
-        result = map(lambda x:
-                     datetime.datetime.fromtimestamp(mktime(strptime(x, '%a %b %d %H:%M:%S %Y '))), cd)
-        d, c = countCommitsByDate(result)
-        self.s.showByDate(d, c)
+        if not isinstance(committime, datetime.datetime):
+            return
+        from time import gmtime
+        return self._filterTime([(commit.message, gmtime(commit.committed_date)) for commit in self.commits], committime)
 
     def commentsFromCommit(self):
         return self.glog.getComments()
