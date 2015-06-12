@@ -131,6 +131,3 @@ class GitLogAnalyzer(AbstractAnalyze):
             return
         from time import gmtime
         return self._filterTime([(commit.message, gmtime(commit.committed_date)) for commit in self.commits], committime)
-
-    def commentsFromCommit(self):
-        return self.glog.getComments()
