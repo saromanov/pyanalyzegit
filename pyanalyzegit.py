@@ -2,6 +2,7 @@ from collections import Counter
 from abc import ABCMeta, abstractmethod
 from sourceanalysis.pysourceanalyzer import PySourceAnalyzer
 from sourceanalysis.javascriptsourceanalyzer import JavaScriptSourceAnalyzer
+from gitloganalyzer import GitLogAnalyzer
 import numpy
 import math
 import argparse
@@ -175,13 +176,6 @@ class AnalyzeFactory:
             return self._cleardata[func](data)
 
 
-class ChangedFiles:
-
-    def __init__(self, count, app, rems):
-        self.count = count
-        self.app = app
-        self.rems = rems
-
 
 def getLogData(git):
     numstat = git.log(opt='--numstat').wordsAddRemInfo()
@@ -193,8 +187,11 @@ def getZipData(git):
     print("Complete. Archive from repo was zipped")
 
 
-def getAuthorsData(git):
-    return git.log().getAuthors()
+def getAuthorsData(repo):
+    ex = ExtendGit()
+    commits = ex.commitsInfo(repo)
+    an = GitLogAnalyzer(commits)
+    print(an.getAuthorsStat())
 
 
 def plotCommitsByDate(git):
@@ -219,10 +216,13 @@ def parse():
     parser.add_argument('--gclone', nargs='?', help='Clone repo from github')
     parser.add_argument(
         '--gclonei', nargs='?', help='Clone repo from git and install')
-    parser.print_help()
     args = parser.parse_args()
     git = ExtendGit()
-    if args.log != None:
+    if args.authors != None:
+        getAuthorsData(args.authors)
+    else:
+        parser.print_help()
+    '''if args.log != None:
         from consoleout import tableOutput
         tableOutput(getLogData(git))
     if args.zip != None:
@@ -238,7 +238,7 @@ def parse():
         # Now only for python
         from consoleout import tableOutput
         binary = git.log(opt='binary', lang='py')
-        tableOutput(binary.mostOftenFunctions())
+        tableOutput(binary.mostOftenFunctions())'''
 
 
 # Check example with algebird
