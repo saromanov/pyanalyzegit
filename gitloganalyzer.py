@@ -42,14 +42,6 @@ class GitLogAnalyzer(AbstractAnalyze):
         '''
         return list(filter(func, self.result))
 
-    def _parseIntData(self, add, rem):
-        try:
-            add = int(add)
-            rem = int(rem)
-            return add, rem
-        except Exception:
-            return 0, 0
-
     def mostChangedFiles(self, limit=1):
         '''
             Get most modified files in project
