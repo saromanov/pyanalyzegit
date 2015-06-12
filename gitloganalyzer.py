@@ -1,5 +1,9 @@
 from abc import ABCMeta, abstractmethod
 from collections import Counter
+import logging
+
+
+logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
 
 
 class AbstractAnalyze(metaclass=ABCMeta):
@@ -47,6 +51,7 @@ class GitLogAnalyzer(AbstractAnalyze):
             Get most modified files in project
             return dict of number of file: {count: Number of changes, insertions: Number of insertions, deletions: Number of deletions}
         '''
+        logging.info("Start to getting moct changed files")
         files = {}
         for commit in self.commits:
             stat = commit.stats.files
@@ -120,6 +125,7 @@ class GitLogAnalyzer(AbstractAnalyze):
         '''
         import datetime
         if not isinstance(committime, datetime.datetime):
+            logging.error("committime should be in datetime format")
             return
         from time import gmtime
         return self._filterTime([(commit.message, gmtime(commit.committed_date)) for commit in self.commits], committime)
