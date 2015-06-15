@@ -36,6 +36,8 @@ class EventData:
 
 
 class GitLogAnalyzer(AbstractAnalyze):
+    ''' GitLogAnalyzer provides analysis of log from git
+    '''
 
     def __init__(self, data):
         self.commits = data
