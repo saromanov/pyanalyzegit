@@ -205,17 +205,6 @@ def cloneFromGithub(git, repo):
 def parse():
     parser = argparse.ArgumentParser(description="Parsing arguments")
     parser.add_argument('--log', nargs='?', help='Show log data')
-    parser.add_argument('--zip', nargs='?', help='zipp current repo')
-    parser.add_argument(
-        '--authors', nargs='?', help='Show all authors in this repo')
-    parser.add_argument(
-        '--show-commits', nargs='?', help='Plot commits by date')
-    parser.add_argument('--plot-files', nargs='?', help='Plot changing files')
-    parser.add_argument('--often-funcs', nargs='?',
-                        help='Get list of most often calls functions in code')
-    parser.add_argument('--gclone', nargs='?', help='Clone repo from github')
-    parser.add_argument(
-        '--gclonei', nargs='?', help='Clone repo from git and install')
     args = parser.parse_args()
     git = ExtendGit()
     if args.authors != None:
