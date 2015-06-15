@@ -187,11 +187,15 @@ def getZipData(git):
     print("Complete. Archive from repo was zipped")
 
 
-def getAuthorsData(repo):
+def showAuthorsData(repo):
     ex = ExtendGit()
     commits = ex.commitsInfo(repo)
     an = GitLogAnalyzer(commits)
-    print(an.getAuthorsStat())
+    result = an.getAuthorsStat()
+    print("Contributor statistics:")
+    print("Contributor  Number of commits\n")
+    for author, commits in result.items():
+        print('{0}  {1}'.format(author, commits))
 
 
 def plotCommitsByDate(git):
@@ -204,11 +208,17 @@ def cloneFromGithub(git, repo):
 
 def parse():
     parser = argparse.ArgumentParser(description="Parsing arguments")
-    parser.add_argument('--log', nargs='?', help='Show log data')
+    parser.add_argument('--repo', nargs='?', help='Repository for analysis')
+    parser.add_argument('--log', action='store_true', help='Show log data')
+    parser.add_argument('--authors-stat', action='store_true', help='Show author statistics by format author:number of commits')
     args = parser.parse_args()
     git = ExtendGit()
-    if args.authors != None:
-        getAuthorsData(args.authors)
+    repo = args.repo
+    if repo == None:
+        print("Parameter repo is empty")
+        return
+    if args.authors_stat != None:
+        showAuthorsData(repo)
     else:
         parser.print_help()
     '''if args.log != None:
