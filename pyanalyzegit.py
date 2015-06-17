@@ -197,6 +197,16 @@ def showAuthorsData(repo):
     for author, commits in result.items():
         print('{0}  {1}'.format(author, commits))
 
+def showPopularWords(repo):
+    assert repo != None
+    ex = ExtendGit()
+    commits = ex.commitsInfo(repo)
+    an = GitLogAnalyzer(commits)
+    result = an.getPopularWords()
+    print("popular words from commits")
+    for word in result:
+        print(word)
+
 
 def plotCommitsByDate(git):
     git.log().showCommitsByDate()
@@ -210,6 +220,7 @@ def parse():
     parser = argparse.ArgumentParser(description="Parsing arguments")
     parser.add_argument('--repo', nargs='?', help='Repository for analysis')
     parser.add_argument('--log', action='store_true', help='Show log data')
+    parser.add_argument('--popular-words', action='store_true', help='Get popular words from commits')
     parser.add_argument('--authors-stat', action='store_true', help='Show author statistics by format author:number of commits')
     args = parser.parse_args()
     git = ExtendGit()
@@ -219,6 +230,8 @@ def parse():
         return
     if args.authors_stat != None:
         showAuthorsData(repo)
+    if args.popular_words != None:
+        showPopularWords(repo)
     else:
         parser.print_help()
     '''if args.log != None:
