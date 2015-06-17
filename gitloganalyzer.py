@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections import Counter
 import logging
+from functools import reduce
 
 
 logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
@@ -131,3 +132,15 @@ class GitLogAnalyzer(AbstractAnalyze):
             return
         from time import gmtime
         return self._filterTime([(commit.message, gmtime(commit.committed_date)) for commit in self.commits], committime)
+
+    def getPopularWords(self):
+        """
+           Get popular words from commits
+
+           Returns:
+               List of popular words
+        """
+        words = [commit.message.split() for commit in self.commits]
+        allwords = reduce(list.__add__, words, [])
+        return Counter(allwords)
+
