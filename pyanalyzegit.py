@@ -207,6 +207,15 @@ def showPopularWords(repo):
     for word in result:
         print(word)
 
+def showAll(repo):
+    """
+    Show all of stat methods
+    """
+    print("Repo: {0}".format(repo))
+    showAuthorsData(repo)
+    showPopularWords(repo)
+
+
 
 def plotCommitsByDate(git):
     git.log().showCommitsByDate()
@@ -222,11 +231,15 @@ def parse():
     parser.add_argument('--log', action='store_true', help='Show log data')
     parser.add_argument('--popular-words', action='store_true', help='Get popular words from commits')
     parser.add_argument('--authors-stat', action='store_true', help='Show author statistics by format author:number of commits')
+    parser.add_argument('--all', action='store_true', help='Show all of stat methods')
     args = parser.parse_args()
     git = ExtendGit()
     repo = args.repo
     if repo == None:
         print("Parameter repo is empty")
+        return
+    if args.all != None:
+        showAll(repo)
         return
     if args.authors_stat != None:
         showAuthorsData(repo)
