@@ -4,7 +4,8 @@ import logging
 from functools import reduce
 
 
-logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
+logging.basicConfig(
+    format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level=logging.DEBUG)
 
 
 class AbstractAnalyze(metaclass=ABCMeta):
@@ -37,6 +38,7 @@ class EventData:
 
 
 class GitLogAnalyzer(AbstractAnalyze):
+
     ''' GitLogAnalyzer provides analysis of log from git
     '''
 
@@ -143,4 +145,3 @@ class GitLogAnalyzer(AbstractAnalyze):
         words = [commit.message.split() for commit in self.commits]
         allwords = reduce(list.__add__, words, [])
         return Counter(allwords)
-
